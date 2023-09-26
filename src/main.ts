@@ -3,10 +3,13 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
+import { createServer } from 'http';
 import { initDB } from './db';
 import api from './api';
+import { ioInit } from './util/wsHelper';
 
 const app = express();
+const httpServer = createServer(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +24,7 @@ const reqEnvs = [
   'DB_USER',
   'DB_PASSWORD',
   'DB_NAME',
+  'NODE_ENV',
 ];
 
 const appInitializer = async () => {
@@ -48,7 +52,8 @@ const appInitializer = async () => {
 app.use('/api', api);
 
 appInitializer().then(() => {
-  app.listen(process.env.PORT, () => {
+  ioInit(httpServer);
+  httpServer.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
   });
 });
