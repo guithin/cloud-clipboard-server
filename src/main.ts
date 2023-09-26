@@ -49,10 +49,10 @@ const appInitializer = async () => {
   });
 };
 
-app.use('/api', api);
+const appWS = ioInit(httpServer);
+appWS.use('/api', api);
 
 appInitializer().then(() => {
-  ioInit(httpServer);
   httpServer.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
   });

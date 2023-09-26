@@ -2,17 +2,9 @@ import { Server as HTTPServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import { ExampleIO } from 'common';
 
-interface GlobalListen {
-  disconnect: undefined;
-}
-
 interface GlobalEmit {
   disconnect: () => void;
 }
-
-type ListenDatas =
-  ExampleIO.ExampleWSListen
-  & GlobalListen;
 
 type EmitEvents =
   ExampleIO.ExampleWSEmit
@@ -24,11 +16,9 @@ interface SocketData {
   id: number;
 }
 
-type ListenEvents = { [K in keyof ListenDatas]: (data: ListenDatas[K]) => void };
+export type ServerType = Server<{}, EmitEvents, ServerSideEvt, SocketData>;
 
-export type ServerType = Server<ListenEvents, EmitEvents, ServerSideEvt, SocketData>;
-
-export type SocketType = Socket<ListenEvents, EmitEvents, ServerSideEvt, SocketData>;
+export type SocketType = Socket<{}, EmitEvents, ServerSideEvt, SocketData>;
 
 const connectedUsers: { [key: number]: SocketType } = {};
 
@@ -38,9 +28,35 @@ export const disconnectFunc = (socket: SocketType) => {
 
 let io: ServerType | null = null;
 
-const listenEvts: {
-  [K in keyof ListenEvents]?: (socket: SocketType, data: ListenDatas[K]) => void;
-} = {};
+type EndPoint<T extends object> = (socket: SocketType, data: T) => void;
+class MiddleWareClass {
+  mapper: { [key: string]: MiddleWareClass | EndPoint<any> } = {};
+
+  use<T extends object = {}>(evt: string, fn: MiddleWareClass | EndPoint<T>) {
+    const pathLst = evt.split('/').filter((v) => v !== '');
+    if (pathLst.length === 0) {
+      throw new Error('Event path cannot be empty');
+    }
+    if (pathLst.length > 1) {
+      const path = pathLst[0];
+      if (!this.mapper[path]) {
+        this.mapper[path] = new MiddleWareClass();
+      }
+      const fetchFn = this.mapper[path];
+      if (fetchFn instanceof MiddleWareClass) {
+        fetchFn.use(pathLst.slice(1).join('/'), fn);
+      } else {
+        throw new Error(`Event ${evt} is already attached with endpoint`);
+      }
+    }
+    if (this.mapper[pathLst[0]]) {
+      throw new Error(`Event ${pathLst[0]} is already attached`);
+    }
+    this.mapper[pathLst[0]] = fn as any;
+  }
+}
+
+const evtRoot = new MiddleWareClass();
 
 export const ioInit = (httpServer: HTTPServer) => {
   io = new Server(httpServer, {
@@ -49,14 +65,33 @@ export const ioInit = (httpServer: HTTPServer) => {
     },
   });
   io.on('connection', (socket) => {
+    if (!io) return;
 
-    // @ts-ignore
-    // 논리상 자명하지만, typescript문법에 맞게 하려면 일일이 매핑해야함
-    Object.entries(listenEvts).forEach(([key, func]) => socket.on(key, (data) => func(socket, data)));
+    socket.onAny((event: string, data) => {
+      if (typeof event !== 'string') {
+        console.log(typeof event, event);
+        return;
+      }
+      const pathLst = event.split('/').filter((v) => v !== '');
+      let fetchFn = evtRoot.mapper[pathLst[0]];
+      for (let i = 1; i < pathLst.length; i++) {
+        if (!fetchFn) {
+          break;
+        }
+        if (typeof fetchFn === 'function') {
+          break;
+        }
+        fetchFn = fetchFn.mapper[pathLst[i]];
+      }
+      if (typeof fetchFn === 'function') {
+        fetchFn(socket, data);
+      }
+    });
 
     connectedUsers[socket.data.id] = socket;
     socket.on('disconnect', () => disconnectFunc(socket));
   });
+  return evtRoot;
 };
 
 export const getIO = () => {
@@ -66,9 +101,4 @@ export const getIO = () => {
   return io;
 };
 
-export const attachListenEvt = <K extends keyof ListenEvents>(evt: K, func: (socket: SocketType, data: ListenDatas[K]) => void) => {
-  if (listenEvts[evt]) {
-    throw new Error(`Event ${evt} is already attached`);
-  }
-  listenEvts[evt] = func as any;
-};
+export const RouterWS = () => new MiddleWareClass();
