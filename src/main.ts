@@ -11,6 +11,8 @@ import { ioInit } from './util/wsHelper';
 const app = express();
 const httpServer = createServer(app);
 
+ioInit(httpServer);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
@@ -49,8 +51,7 @@ const appInitializer = async () => {
   });
 };
 
-const appWS = ioInit(httpServer);
-appWS.use('/api', api);
+app.use('/api', api);
 
 appInitializer().then(() => {
   httpServer.listen(process.env.PORT, () => {

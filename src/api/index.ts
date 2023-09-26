@@ -1,8 +1,6 @@
-import { RouterWS } from 'src/util/wsHelper';
-import exampleWS from './example';
+import './example';
+import { Router } from 'express';
 
-const routerWS = RouterWS();
+const router = Router();
 
-routerWS.use('example', exampleWS);
-
-export default routerWS;
+export default router;
