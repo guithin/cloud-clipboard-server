@@ -1,6 +1,22 @@
-import { attachWSHandler } from 'src/util/wsHelper';
+import { Router } from 'express';
+import { getIO } from 'src/wsHandler';
 
-attachWSHandler('ExampleWSL', (io, socket, data) => {
-  console.log(data);
-  socket.emit('ExampleWSE', ({ ids: [1, 2, 3, data.id] }))
+const router = Router();
+
+router.get('/', (req, res) => {
+  const io = getIO();
+  const ret = Array.from(io.sockets.adapter.rooms.keys());
+  res.send(ret);
 });
+
+router.get('/room/:roomId', (req, res) => {
+  const io = getIO();
+  const room = io.sockets.adapter.rooms.get(req.params.roomId);
+  if (!room) {
+    return res.send('no room');
+  }
+  const ret = Array.from(room.keys());
+  res.send(ret);
+});
+
+export default router;

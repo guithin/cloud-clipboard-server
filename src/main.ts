@@ -6,7 +6,7 @@ import compression from 'compression';
 import { createServer } from 'http';
 import { initDB } from './db';
 import api from './api';
-import { ioInit } from './util/wsHelper';
+import { ioInit } from './wsHandler';
 
 const app = express();
 const httpServer = createServer(app);

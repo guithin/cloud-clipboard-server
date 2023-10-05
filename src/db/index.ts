@@ -36,4 +36,5 @@ export const initDB = async (opts: Options) => {
 
 export { getDB };
 
-// export * as Users from './functions/User';
+export * as Bucket from './functions/Bucket';
+export * as ShareToken from './functions/ShareToken';

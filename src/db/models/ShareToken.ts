@@ -5,7 +5,7 @@ export default class ShareToken extends Model {
   public id!: number;
   
   public bid!: number; // Bucket.id
-  public pasePath!: string;
+  public basePath!: string;
   public token!: string;
 
   public expiresAt!: Date;
@@ -26,7 +26,7 @@ export default class ShareToken extends Model {
         type: INTEGER,
         allowNull: false,
       },
-      pasePath: {
+      basePath: {
         type: CHAR,
         allowNull: false,
       },

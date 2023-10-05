@@ -1,4 +1,4 @@
-import { CHAR, INTEGER, Model, Sequelize } from 'sequelize';
+import { CHAR, ENUM, INTEGER, Model, Sequelize } from 'sequelize';
 import User from './User';
 
 export default class Bucket extends Model {
@@ -6,6 +6,7 @@ export default class Bucket extends Model {
 
   public name!: string;
   public ownerId!: number; // User.id
+  public type!: 'OS' | 'S3' | 'FTP';
 
   readonly createdAt!: Date;
   readonly updatedAt!: Date;
@@ -25,6 +26,10 @@ export default class Bucket extends Model {
       },
       ownerId: {
         type: INTEGER,
+        allowNull: false,
+      },
+      type: {
+        type: ENUM('OS', 'S3', 'FTP'),
         allowNull: false,
       },
     }, {
