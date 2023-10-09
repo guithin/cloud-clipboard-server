@@ -28,6 +28,9 @@ const reqEnvs = [
   'DB_PASSWORD',
   'DB_NAME',
   'NODE_ENV',
+  'BASE_DIR',
+  'JWT_SECRET',
+  'PASSWD_HASH_SECRET',
 ];
 
 const appInitializer = async () => {

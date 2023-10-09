@@ -24,6 +24,7 @@ export const initDB = async (opts: Options) => {
   tableList.forEach((table) => table.tableinit(sequelize));
 
   Bucket.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+  Bucket.hasMany(BucketMember, { foreignKey: 'bid', as: 'members' });
   BucketMember.belongsTo(User, { foreignKey: 'uid', as: 'user' }); //
   BucketMember.belongsTo(Bucket, { foreignKey: 'bid', as: 'bucket' }); //
   ShareToken.belongsTo(Bucket, { foreignKey: 'bid', as: 'bucket' });

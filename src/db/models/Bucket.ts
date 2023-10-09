@@ -11,7 +11,7 @@ export default class Bucket extends Model {
   readonly createdAt!: Date;
   readonly updatedAt!: Date;
 
-  public oner!: User;
+  public owner!: User;
 
   static tableinit(sequelize: Sequelize) {
     this.init({

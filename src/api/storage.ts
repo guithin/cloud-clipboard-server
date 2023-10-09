@@ -54,7 +54,7 @@ router.get<StorageIO.Download>('/download', async (req, res) => {
   if (!rs) {
     return res.status(404).send();
   }
-  return res.pipe(res);
+  return rs.pipe(res);
 });
 
 router.post<StorageIO.Mkdir>('/mkdir', async (req, res) => {
@@ -81,6 +81,17 @@ router.post<StorageIO.RmDirent>('/rm', async (req, res) => {
   }
   const result = await rmDirent(bucket, _path);
   return res.status(result ? 200 : 400).send();
+});
+
+router.get<StorageIO.BucketLst>('/bucketlist', async (req, res) => {
+  const buckets = await Bucket.getBucketList(req.user.id);
+  return res.send({
+    buckets: buckets.map((bucket) => ({
+      name: bucket.name,
+      type: bucket.type,
+      ownerName: bucket.owner.name,
+    })),
+  });
 });
 
 export default router;

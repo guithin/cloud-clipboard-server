@@ -6,7 +6,7 @@ import auth from './auth';
 const router = Router();
 
 router.use('/example', example);
-router.use('/drive', storage.realRouter);
+router.use('/storage', storage.realRouter);
 router.use('/auth', auth.realRouter);
 
 export default router;

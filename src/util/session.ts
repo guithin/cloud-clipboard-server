@@ -7,7 +7,7 @@ export const fetchUserMiddleware: RequestHandler = (req, res, next) => {
     return next();
   }
 
-  const token = req.headers['Authorization'];
+  const token = req.headers.authorization;
   if (typeof token !== 'string') {
     return res.status(401).send('Unauthorized');
   }
