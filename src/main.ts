@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import { initDB } from './db';
 import api from './api';
 import { ioInit } from './wsHandler';
+import { fetchUserMiddleware } from './util/session';
 
 const app = express();
 const httpServer = createServer(app);
@@ -51,6 +52,7 @@ const appInitializer = async () => {
   });
 };
 
+app.use(fetchUserMiddleware);
 app.use('/api', api);
 
 appInitializer().then(() => {

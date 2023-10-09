@@ -9,6 +9,8 @@ declare module 'process' {
         DB_PASSWORD: string;
         DB_NAME: string;
         BASE_DIR: string;
+        JWT_SECRET: string;
+        PASSWD_HASH_SECRET: string;
         [key: string]: string;
       }
     }

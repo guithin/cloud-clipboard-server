@@ -38,3 +38,4 @@ export { getDB };
 
 export * as Bucket from './functions/Bucket';
 export * as ShareToken from './functions/ShareToken';
+export * as User from './functions/User';
