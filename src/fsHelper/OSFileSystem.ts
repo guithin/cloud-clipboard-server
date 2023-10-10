@@ -8,6 +8,7 @@ import {
   MakeDirFunc,
   ReadDirFunc,
   RmDirentFunc,
+  UploadFileFunc,
 } from './type';
 
 export const readDir: ReadDirFunc = async (bucket, qpath) => {
@@ -65,6 +66,12 @@ export const getFileReadStream: GetFileReadStreamFunc = async (bucket, qpath) =>
   return fs.createReadStream(rpath);
 };
 
+export const uploadFile: UploadFileFunc = async (bucket, qpath, filename, tmpPath) => new Promise((resolve) => {
+  const rpath = path.join(process.env.BASE_DIR, bucket.name, qpath, filename);
+  fs.promises.rename(tmpPath, rpath)
+    .then(() => resolve(true))
+    .catch(() => resolve(false));
+});
 
 const OSFSBag: FileSystemFuncBag = {
   readDir,
@@ -72,6 +79,7 @@ const OSFSBag: FileSystemFuncBag = {
   rmDirent,
   getDirentInfo,
   getFileReadStream,
+  uploadFile,
 };
 
 export default OSFSBag;

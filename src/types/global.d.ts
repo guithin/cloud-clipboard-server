@@ -11,6 +11,7 @@ declare module 'process' {
         BASE_DIR: string;
         JWT_SECRET: string;
         PASSWD_HASH_SECRET: string;
+        MULTER_PATH: string;
         [key: string]: string;
       }
     }

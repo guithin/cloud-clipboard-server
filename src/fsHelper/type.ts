@@ -21,10 +21,13 @@ export type GetDirentInfoFunc = (bucket: Bucket, path: string) => Promise<Dirent
 
 export type GetFileReadStreamFunc = (bucket: Bucket, path: string) => Promise<Readable | null>;
 
+export type UploadFileFunc = (bucket: Bucket, path: string, filename: string, tmpPath: string) => Promise<boolean>;
+
 export interface FileSystemFuncBag {
   readDir: ReadDirFunc;
   makeDir: MakeDirFunc;
   rmDirent: RmDirentFunc;
   getDirentInfo: GetDirentInfoFunc;
   getFileReadStream: GetFileReadStreamFunc;
+  uploadFile: UploadFileFunc;
 }

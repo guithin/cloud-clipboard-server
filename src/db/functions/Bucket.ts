@@ -26,6 +26,7 @@ export const getBucket = (bucketName: string) => Bucket.findOne({
 
 export const getBucketList = (uid: number) => Bucket.findAll({
   include: [{
+    attributes: ['uid'],
     model: BucketMember,
     as: 'members',
     required: true,
@@ -33,6 +34,7 @@ export const getBucketList = (uid: number) => Bucket.findAll({
       uid,
     },
   }, {
+    attributes: ['name'],
     model: User,
     as: 'owner',
     required: true,

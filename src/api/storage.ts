@@ -1,9 +1,11 @@
 import path from 'path';
 import { Router } from 'express';
+import multer from 'multer';
+import { v4 as uuid } from 'uuid';
 import makeRouter from './makeRouter';
 import { StorageIO } from 'common/index';
 import { Bucket, ShareToken } from 'src/db';
-import { getFileReadStream, makeDir, readDir, rmDirent } from 'src/fsHelper';
+import { getFileReadStream, makeDir, readDir, rmDirent, uploadFile } from 'src/fsHelper';
 
 const router = makeRouter(Router());
 
@@ -92,6 +94,40 @@ router.get<StorageIO.BucketLst>('/bucketlist', async (req, res) => {
       ownerName: bucket.owner.name,
     })),
   });
+});
+
+const uploadHandler = multer({
+  storage: multer.diskStorage({
+    destination: process.env.MULTER_PATH,
+    filename: (req, file, cb) => {
+      cb(null, uuid() + path.extname(file.originalname));
+    },
+  }),
+});
+
+router.post<StorageIO.Upload>('/upload', uploadHandler.fields([
+  { name: 'file' },
+  { name: 'bucket' },
+  { name: 'path' },
+  { name: 'filename' },
+]), async (req, res) => {
+  const { bucket, path: _path, filename } = req.body;
+  if (typeof bucket !== 'string' || typeof _path !== 'string' || typeof filename !== 'string') {
+    return res.status(400).send();
+  }
+  const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
+  if (!hasPerm) {
+    return res.status(403).send();
+  }
+  if (Array.isArray(req.files) || typeof req.files === 'undefined') {
+    return res.status(400).send();
+  }
+  const [file] = req.files.file;
+  if (!file) {
+    return res.status(400).send();
+  }
+  const ret = await uploadFile(bucket, _path, filename, file.path);
+  res.status(ret ? 200 : 400).send();
 });
 
 export default router;

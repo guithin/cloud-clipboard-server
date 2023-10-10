@@ -31,6 +31,7 @@ const reqEnvs = [
   'BASE_DIR',
   'JWT_SECRET',
   'PASSWD_HASH_SECRET',
+  'MULTER_PATH',
 ];
 
 const appInitializer = async () => {
