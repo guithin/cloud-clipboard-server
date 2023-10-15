@@ -75,6 +75,7 @@ router.post<StorageIO.Mkdir>('/mkdir', async (req, res) => {
 router.post<StorageIO.RmDirent>('/rm', async (req, res) => {
   const { bucket, path: _path } = req.body;
   if (typeof bucket !== 'string' || typeof _path !== 'string') {
+    console.log('1111');
     return res.status(400).send();
   }
   const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));

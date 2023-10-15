@@ -36,7 +36,8 @@ export const makeDir: MakeDirFunc = (bucket, qpath) => new Promise((resolve) => 
 
 export const rmDirent: RmDirentFunc = (bucket, qpath) => new Promise((resolve) => {
   const rpath = path.join(process.env.BASE_DIR, bucket.name, qpath);
-  fs.promises.unlink(rpath)
+  console.log(bucket.name, qpath, rpath)
+  fs.promises.rm(rpath, { recursive: true, force: true })
     .then(() => resolve(true))
     .catch(() => resolve(false));
 });
