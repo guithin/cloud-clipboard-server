@@ -12,6 +12,13 @@ declare module 'process' {
         JWT_SECRET: string;
         PASSWD_HASH_SECRET: string;
         MULTER_PATH: string;
+        SFTP_HOST: string;
+        SFTP_PORT: string;
+        SFTP_AUTH_TYPE: 'password' | 'privateKey';
+        SFTP_USERNAME: string;
+        SFTP_PASSWORD: string;
+        SFTP_KEY_PATH: string;
+        SFTP_BASE_DIR: string;
         [key: string]: string;
       }
     }

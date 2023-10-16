@@ -26,6 +26,7 @@ export type UploadFileFunc = (bucket: Bucket, path: string, filename: string, tm
 export type MvDirentFunc = (bucket: Bucket, srcPath: string, destPath: string) => Promise<boolean>;
 
 export interface FileSystemFuncBag {
+  initial: () => Promise<void>;
   readDir: ReadDirFunc;
   makeDir: MakeDirFunc;
   rmDirent: RmDirentFunc;

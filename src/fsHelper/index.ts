@@ -1,13 +1,15 @@
 import { Readable } from 'stream';
+import { Bucket } from 'src/db';
 import { DirentInfo, FileSystemFuncBag } from './type';
 import OSFSBag from './OSFileSystem';
-import { Bucket } from 'src/db';
+import SFTPBag from './SFTPSystem';
 
 type FSType = 'OS' | 'S3' | 'FTP';
 
 type FSMapper = { [key in FSType]: FileSystemFuncBag };
 
 const defaultFSBag: FileSystemFuncBag = {
+  initial: async () => {},
   readDir: async () => [],
   makeDir: async () => true,
   rmDirent: async () => true,
@@ -20,7 +22,7 @@ const defaultFSBag: FileSystemFuncBag = {
 export const funcBagMapper: FSMapper = {
   'OS': OSFSBag,
   'S3': defaultFSBag,
-  'FTP': defaultFSBag,
+  'FTP': SFTPBag,
 };
 
 export const readDir = async (bucket: string, path: string): Promise<DirentInfo[]> => {

@@ -8,6 +8,8 @@ import { initDB } from './db';
 import api from './api';
 import { ioInit } from './wsHandler';
 import { fetchUserMiddleware } from './util/session';
+import OSFSBag from './fsHelper/OSFileSystem';
+import SFTPBag from './fsHelper/SFTPSystem';
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,12 +34,26 @@ const reqEnvs = [
   'JWT_SECRET',
   'PASSWD_HASH_SECRET',
   'MULTER_PATH',
+  'SFTP_HOST',
+  'SFTP_PORT',
+  'SFTP_AUTH_TYPE',
+  'SFTP_USERNAME',
+  'SFTP_BASE_DIR',
 ];
 
 const appInitializer = async () => {
   for (let i = 0; i < reqEnvs.length; i++) {
     if (!process.env[reqEnvs[i]]) {
       throw new Error(`Required environment variable ${reqEnvs[i]} is not set`);
+    }
+  }
+  if (process.env.SFTP_AUTH_TYPE === 'password') {
+    if (!process.env.SFTP_PASSWORD) {
+      throw new Error('SFTP_PASSWORD is not set');
+    }
+  } else {
+    if (!process.env.SFTP_KEY_PATH) {
+      throw new Error('SFTP_KEY_PATH is not set');
     }
   }
   await initDB({
@@ -54,6 +70,8 @@ const appInitializer = async () => {
     },
     logging: process.env.NODE_ENV === 'dev' ? console.log : false,
   });
+  await OSFSBag.initial();
+  await SFTPBag.initial();
 };
 
 app.use(fetchUserMiddleware);
