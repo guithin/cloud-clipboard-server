@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  DirentInfo,
   FileSystemFuncBag,
   GetDirentInfoFunc,
   GetFileReadStreamFunc,
   MakeDirFunc,
+  MvDirentFunc,
   ReadDirFunc,
   RmDirentFunc,
   UploadFileFunc,
@@ -74,6 +74,14 @@ export const uploadFile: UploadFileFunc = async (bucket, qpath, filename, tmpPat
     .catch(() => resolve(false));
 });
 
+export const mvDirent: MvDirentFunc = (bucket, srcPath, destPath) => new Promise((resolve) => {
+  const rsrcPath = path.join(process.env.BASE_DIR, bucket.name, srcPath);
+  const rdestPath = path.join(process.env.BASE_DIR, bucket.name, destPath);
+  fs.promises.rename(rsrcPath, rdestPath)
+    .then(() => resolve(true))
+    .catch(() => resolve(false));
+});
+
 const OSFSBag: FileSystemFuncBag = {
   readDir,
   makeDir,
@@ -81,6 +89,7 @@ const OSFSBag: FileSystemFuncBag = {
   getDirentInfo,
   getFileReadStream,
   uploadFile,
+  mvDirent,
 };
 
 export default OSFSBag;

@@ -5,13 +5,33 @@ import { v4 as uuid } from 'uuid';
 import makeRouter from './makeRouter';
 import { StorageIO } from 'common/index';
 import { Bucket, ShareToken } from 'src/db';
-import { getFileReadStream, makeDir, readDir, rmDirent, uploadFile } from 'src/fsHelper';
+import { getFileReadStream, makeDir, mvDirent, readDir, rmDirent, uploadFile } from 'src/fsHelper';
 
 const router = makeRouter(Router());
+
+const banExp = /[\\\/\:\*\?\"\<\>\|]/g;
+
+const isValidePath = (p: string): boolean => {
+  if (p.length === 0) return true;
+  const paths = p.split('/');
+  if (paths[0] === '') paths.shift();
+  for (const p of paths) {
+    if (banExp.test(p)) {
+      return false;
+    }
+    if (p === '..' || p === '.') {
+      return false;
+    }
+  }
+  return true;
+};
 
 router.post<StorageIO.ReadDir>('/readdir', async (req, res) => {
   const { bucket, path: _path, sToken } = req.body;
   if (typeof bucket !== 'string' || typeof _path !== 'string') {
+    return res.status(400).send();
+  }
+  if (isValidePath(_path) === false) {
     return res.status(400).send();
   }
   let hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
@@ -39,6 +59,9 @@ router.get<StorageIO.Download>('/download', async (req, res) => {
   if (typeof bucket !== 'string' || typeof _path !== 'string') {
     return res.status(400).send();
   }
+  if (isValidePath(_path) === false) {
+    return res.status(400).send();
+  }
   let hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
   let rPath = _path;
   if (!hasPerm) {
@@ -64,6 +87,9 @@ router.post<StorageIO.Mkdir>('/mkdir', async (req, res) => {
   if (typeof bucket !== 'string' || typeof _path !== 'string') {
     return res.status(400).send();
   }
+  if (isValidePath(_path) === false) {
+    return res.status(400).send();
+  }
   const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
   if (!hasPerm) {
     return res.status(403).send();
@@ -75,7 +101,9 @@ router.post<StorageIO.Mkdir>('/mkdir', async (req, res) => {
 router.post<StorageIO.RmDirent>('/rm', async (req, res) => {
   const { bucket, path: _path } = req.body;
   if (typeof bucket !== 'string' || typeof _path !== 'string') {
-    console.log('1111');
+    return res.status(400).send();
+  }
+  if (isValidePath(_path) === false) {
     return res.status(400).send();
   }
   const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
@@ -116,6 +144,9 @@ router.post<StorageIO.Upload>('/upload', uploadHandler.fields([
   if (typeof bucket !== 'string' || typeof _path !== 'string' || typeof filename !== 'string') {
     return res.status(400).send();
   }
+  if (isValidePath(_path) === false) {
+    return res.status(400).send();
+  }
   const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
   if (!hasPerm) {
     return res.status(403).send();
@@ -129,6 +160,22 @@ router.post<StorageIO.Upload>('/upload', uploadHandler.fields([
   }
   const ret = await uploadFile(bucket, _path, filename, file.path);
   res.status(ret ? 200 : 400).send();
+});
+
+router.post<StorageIO.MvDirent>('/mv', async (req, res) => {
+  const { bucket, srcPath, destPath } = req.body;
+  if (typeof bucket !== 'string' || typeof srcPath !== 'string' || typeof destPath !== 'string') {
+    return res.status(400).send();
+  }
+  if (isValidePath(srcPath) === false || isValidePath(destPath) === false) {
+    return res.status(400).send();
+  }
+  const hasPerm = req.user.userId === bucket || (await Bucket.isBucketMember(bucket, req.user.id));
+  if (!hasPerm) {
+    return res.status(403).send();
+  }
+  const result = await mvDirent(bucket, srcPath, destPath);
+  return res.status(result ? 200 : 400).send();
 });
 
 export default router;

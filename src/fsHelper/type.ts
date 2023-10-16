@@ -23,6 +23,8 @@ export type GetFileReadStreamFunc = (bucket: Bucket, path: string) => Promise<Re
 
 export type UploadFileFunc = (bucket: Bucket, path: string, filename: string, tmpPath: string) => Promise<boolean>;
 
+export type MvDirentFunc = (bucket: Bucket, srcPath: string, destPath: string) => Promise<boolean>;
+
 export interface FileSystemFuncBag {
   readDir: ReadDirFunc;
   makeDir: MakeDirFunc;
@@ -30,4 +32,5 @@ export interface FileSystemFuncBag {
   getDirentInfo: GetDirentInfoFunc;
   getFileReadStream: GetFileReadStreamFunc;
   uploadFile: UploadFileFunc;
+  mvDirent: MvDirentFunc;
 }

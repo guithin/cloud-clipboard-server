@@ -14,6 +14,7 @@ const defaultFSBag: FileSystemFuncBag = {
   getDirentInfo: async () => null,
   getFileReadStream: async () => null,
   uploadFile: async () => true,
+  mvDirent: async () => true,
 };
 
 export const funcBagMapper: FSMapper = {
@@ -68,4 +69,12 @@ export const uploadFile = async (bucket: string, path: string, filename: string,
     throw new Error('Bucket not found');
   }
   return funcBagMapper[bk.type].uploadFile(bk, path, filename, tmpPath);
+};
+
+export const mvDirent = async (bucket: string, srcPath: string, destPath: string): Promise<boolean> => {
+  const bk = await Bucket.getBucket(bucket);
+  if (!bk) {
+    throw new Error('Bucket not found');
+  }
+  return funcBagMapper[bk.type].mvDirent(bk, srcPath, destPath);
 };
