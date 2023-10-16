@@ -5,7 +5,6 @@ export default class BucketMember extends Model {
 
   public bid!: number; // Bucket.id
   public uid!: number; // User.id
-  public type!: 'S3' | 'OS' | 'FTP';
 
   readonly createdAt!: Date;
   readonly updatedAt!: Date;

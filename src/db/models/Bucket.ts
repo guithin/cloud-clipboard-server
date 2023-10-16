@@ -6,7 +6,7 @@ export default class Bucket extends Model {
 
   public name!: string;
   public ownerId!: number; // User.id
-  public type!: 'OS' | 'S3' | 'FTP';
+  public type!: 'OS' | 'S3' | 'FTP' | 'EP';
 
   readonly createdAt!: Date;
   readonly updatedAt!: Date;
@@ -29,7 +29,7 @@ export default class Bucket extends Model {
         allowNull: false,
       },
       type: {
-        type: ENUM('OS', 'S3', 'FTP'),
+        type: ENUM('OS', 'S3', 'FTP', 'EP'),
         allowNull: false,
       },
     }, {
