@@ -1,6 +1,6 @@
 import { Server as HTTPServer, createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { ExampleIO } from 'common';
+import { ClipboardIO } from 'common';
 
 interface GlobalListen {
   disconnect: void;
@@ -11,13 +11,13 @@ interface GlobalEmit {
 }
 
 type ListenDatas =
-  ExampleIO.ExampleWSListen
+  ClipboardIO.ClipboardWSL
   & GlobalListen;
 
 type ListenEvents = { [K in keyof ListenDatas]: (data: ListenDatas[K]) => void };
 
 type EmitEvents =
-  ExampleIO.ExampleWSEmit
+  ClipboardIO.ClipboardWSE
   & GlobalEmit;
 
 type ServerSideEvt = {};
@@ -50,6 +50,7 @@ export const ioInit = (httpServer: HTTPServer) => {
     cors: {
       origin: '*',
     },
+    maxHttpBufferSize: 1e8,
   });
 
   io.on('connection', (socket) => {

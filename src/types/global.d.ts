@@ -19,6 +19,9 @@ declare module 'process' {
         SFTP_PASSWORD: string;
         SFTP_KEY_PATH: string;
         SFTP_BASE_DIR: string;
+        REDIS_URL: string;
+        REDIS_USERNAME: string;
+        REDIS_PASSWORD: string;
         [key: string]: string;
       }
     }

@@ -10,6 +10,7 @@ import { ioInit } from './wsHandler';
 import { fetchUserMiddleware } from './util/session';
 import OSFSBag from './fsHelper/OSFileSystem';
 import SFTPBag from './fsHelper/SFTPSystem';
+import { init as redisInit } from './util/redis';
 
 const app = express();
 const httpServer = createServer(app);
@@ -72,6 +73,7 @@ const appInitializer = async () => {
   });
   await OSFSBag.initial();
   await SFTPBag.initial();
+  await redisInit();
 };
 
 app.use(fetchUserMiddleware);
